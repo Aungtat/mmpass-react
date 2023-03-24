@@ -10,7 +10,7 @@ import {
 
 export interface Availability {
   date: string;
-  month: string;
+  month: number;
   slot: Slot[];
 }
 export interface Slot {
@@ -20,33 +20,38 @@ export interface Slot {
   availableSlot: number;
 }
 interface Props {
-  availability?: Availability[];
+  availability?: Availability;
 }
 export default function TimePicker({ availability }: Props) {
-  return <h1>{availability?.length}</h1>;
-  // if (!slots) {
-  //   return null;
-  // }
-  // return (
-  //   <div className="container">
-  //     <FormControl>
-  //       <FormLabel id="demo-radio-buttons-group-label">Choose Time</FormLabel>
-  //       <RadioGroup
-  //         aria-labelledby="demo-radio-buttons-group-label"
-  //         name="radio-buttons-group"
-  //       >
-  //         {/* mapping slots array and show time */}
-  //         {slots.map((slot) => {
-  //           return (
-  //             <FormControlLabel
-  //               value={slot.time}
-  //               control={<Radio />}
-  //               label={slot.time}
-  //             />
-  //           );
-  //         })}
-  //       </RadioGroup>
-  //     </FormControl>
-  //   </div>
-  // );
+  if (!availability) {
+    return null;
+  }
+
+  const slots = availability.slot;
+  return (
+    <div className="container">
+      <FormControl>
+        <FormLabel id="demo-radio-buttons-group-label">Choose Time</FormLabel>
+        <RadioGroup
+          aria-labelledby="demo-radio-buttons-group-label"
+          name="radio-buttons-group"
+        >
+          {/* mapping slots array and show time */}
+          {slots.map((slot) => {
+            if (slot.availableSlot === 0) {
+              return;
+            }
+            return (
+              <FormControlLabel
+                value={slot.time}
+                control={<Radio />}
+                label={slot.time}
+                key={slot.time}
+              />
+            );
+          })}
+        </RadioGroup>
+      </FormControl>
+    </div>
+  );
 }

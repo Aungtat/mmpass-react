@@ -8,35 +8,38 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { Availability } from "./TimePicker/TimePicker";
 
 interface Props {
-  value: Dayjs | null;
+  date: Dayjs | null;
   handleDateChange: (value: Dayjs | null) => void;
   availability?: Availability[];
+  month?: number;
+  handleMonthChange: (month?: number) => void;
+  fetchData: () => Promise<void>;
 }
 
 export default function DatePicker({
-  value,
+  date,
   handleDateChange,
   availability,
+  handleMonthChange,
+  month,
+  fetchData,
 }: Props) {
-  // console.log(availability);
+  const selectedMonth = month ? month : dayjs().month();
+  console.log("selectedMonth", selectedMonth);
+  const currentMonthAvailability = availability?.filter(
+    (item) => item.month === selectedMonth
+  );
+  console.log("day", availability);
 
   const dateToDisable = (date: Dayjs | null) => {
-    let shouldDisable = "";
-    if (availability) {
-      availability.forEach((elem) => {
-        const filterElem = elem.slot.filter((slot) => slot.availableSlot === 0);
-        if (filterElem.length > 0) {
-          shouldDisable = elem.date;
-        }
-      });
-    }
-    // console.log(date?.date() === parseInt(shouldDisable.split("-")[0], 10));
-
-    return (
-      date?.date() === parseInt(shouldDisable.split("-")[0], 10) ||
-      date?.day() === 0 ||
-      date?.day() === 6
+    const currentDate = currentMonthAvailability?.find(
+      (item) => item.date === date?.format("DD-MM-YYYY")
     );
+
+    const isAvailable = currentDate?.slot.some(
+      (item) => item.availableSlot !== 0
+    );
+    return isAvailable ? false : true;
   };
 
   return (
@@ -47,9 +50,11 @@ export default function DatePicker({
           <DesktopDatePicker
             label="Choose Date"
             inputFormat="DD/MM/YYYY"
-            value={value}
+            value={date}
             shouldDisableDate={dateToDisable} //attribute for disable date
             onChange={(value) => handleDateChange(value)}
+            onMonthChange={(value) => handleMonthChange(value?.month())}
+            disableHighlightToday
             renderInput={(params) => <TextField {...params} />}
           />
         </Stack>
